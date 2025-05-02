@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example.stream</groupId>
-	<artifactId>name-sink</artifactId>
+	<artifactId>Messaging</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>name-sink</name>
+	<name>Messaging</name>
 	<description>Spring Cloud Stream Demo</description>
 	<url/>
 	<licenses>
