@@ -1,0 +1,106 @@
+version: '3.8'
+# -----------------------------------------------------------------------------------
+## When running on local, driver had to be defined as local for the mounting to work
+# -----------------------------------------------------------------------------------
+
+services:
+
+  # -----------------------------------------------------------------------------------
+  # zookeeper
+  # -----------------------------------------------------------------------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.9
+    platform: ${PLATFORM}
+    hostname: zookeeper
+    container_name: zookeeper
+    restart: on-failure
+    ports:
+      - "2181:2181"
+    healthcheck:
+      test: nc -z 0.0.0.0 2181 || exit -1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    environment:
+      # To allow unauthenticated users to connect to zookeeper - Dev Only Setting
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  # -----------------------------------------------------------------------------------
+  # Kafka
+  # -----------------------------------------------------------------------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.0.9
+    platform: ${PLATFORM}
+    hostname: kafka
+    container_name: kafka
+    restart: on-failure
+    ports:
+      - "9092:9092"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ps aux | grep [k]afka || exit -1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    environment:
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Since we are using PLAINTEXT for all listeners, need to set this for Bitnami Image
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      # Setup custom listeners so that the broker listens on 2 different ports
+      # If we have only one - kafka:, then we can access it from another docker container, but not from host
+      # If we name it localhost:, then we can access it from host, but cannot from another docker container
+      # If we hardcoded an IP, we could have used the same host:port from both within docker and from host
+      # That is why we need both. Advertise the respective custom listener ports on different host names
+      KAFKA_LISTENERS: PLAINTEXT://:29092,PLAINTEXT_HOST://:9092
+      # Tell kafka to not authenticate for the custom listeners
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    platform: ${PLATFORM}
+    hostname: kafka-ui
+    container_name: kafka-ui
+    restart: on-failure
+    ports:
+      - "5403:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      READ_ONLY_MODE: false
+      CLUSTER_NAME: spring-guide-kafka
+    volumes:
+      - ${PWD}/kafka-ui.yml:/application.yml
+      - ${PWD}/protos:/opt/lib/protos
+
+  # -----------------------------------------------------------------------------------
+  # Kafka Topic Initializer  - Creates Topics that TIS consumes, but does not own.
+  # -----------------------------------------------------------------------------------
+  kafka-topic-init:
+    image: confluentinc/cp-kafka:7.0.9
+    platform: ${PLATFORM}
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      
+      kafka-topics --bootstrap-server kafka:29092 --create --topic sample.topic --replication-factor 1 --partitions 10 --config cleanup.policy=delete
+      
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "
