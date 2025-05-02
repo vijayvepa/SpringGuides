@@ -11,10 +11,12 @@ import org.springframework.util.Assert;
 public class AppRunner implements CommandLineRunner {
 
   private final BookingService bookingService;
+  private final MultiStepService multiStepService;
   private final static Logger logger = LoggerFactory.getLogger(AppRunner.class);
 
-  public AppRunner(BookingService bookingService) {
+  public AppRunner(BookingService bookingService, MultiStepService multiStepService) {
     this.bookingService = bookingService;
+    this.multiStepService = multiStepService;
   }
 
   @Override
@@ -41,7 +43,7 @@ public class AppRunner implements CommandLineRunner {
 
 
     try{
-      bookingService.book("Buddy", null);
+      multiStepService.book("Buddy", null);
     }catch (RuntimeException ex) {
       logger.info("v --- The following exception is expected because null is not valid for the DB.");
       logger.error(ex.getMessage());
