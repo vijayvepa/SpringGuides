@@ -8,15 +8,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppRunner implements CommandLineRunner {
 
+  private final FieldValueTestBean fieldValueTestBean;
   private Logger logger = LoggerFactory.getLogger(AppRunner.class);
   private final BookRepository bookRepository;
 
-  public AppRunner(BookRepository bookRepository) {
+  public AppRunner(FieldValueTestBean fieldValueTestBean, BookRepository bookRepository) {
+    this.fieldValueTestBean = fieldValueTestBean;
     this.bookRepository = bookRepository;
   }
 
   @Override
   public void run(String... args) throws Exception {
+    logger.info("User Region {}", fieldValueTestBean.getDefaultLocale());
     logger.info("... Fetching books");
     logger.info("isbn-1234 --> " + bookRepository.getByIsbn("isbn-1234"));
     logger.info("isbn-4567 --> " + bookRepository.getByIsbn("isbn-4567"));
