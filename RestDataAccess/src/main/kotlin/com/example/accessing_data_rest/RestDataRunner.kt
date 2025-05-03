@@ -8,6 +8,11 @@ import org.springframework.jdbc.core.query
 import org.springframework.stereotype.Component
 import java.util.Arrays
 
+private const val FIRST_NAME = "first_name"
+private const val LAST_NAME = "last_name"
+private const val ID = "id"
+private const val CUSTOMERS = "customers"
+
 @Component
 class RestDataRunner(val jdbcTemplate: JdbcTemplate) : CommandLineRunner {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass);
@@ -19,9 +24,9 @@ class RestDataRunner(val jdbcTemplate: JdbcTemplate) : CommandLineRunner {
         logger.info("Creating tables");
 
         with(jdbcTemplate) {
-            execute ("DROP TABLE customers IF EXISTS")
-            execute  ("CREATE TABLE customers (" +
-                            "id SERIAL, first_name VARCHAR(255), last_name VARCHAR(255)" +
+            execute ("DROP TABLE $CUSTOMERS IF EXISTS")
+            execute  ("CREATE TABLE $CUSTOMERS (" +
+                            "$ID SERIAL, $FIRST_NAME VARCHAR(255), $LAST_NAME VARCHAR(255)" +
                         ")")
 
         }
@@ -34,15 +39,15 @@ class RestDataRunner(val jdbcTemplate: JdbcTemplate) : CommandLineRunner {
         }
 
 
-        jdbcTemplate.batchUpdate("INSERT INTO customers (first_name, last_name) VALUES (?,?)", splitUpNames);
+        jdbcTemplate.batchUpdate("INSERT INTO $CUSTOMERS ($FIRST_NAME, $LAST_NAME) VALUES (?,?)", splitUpNames);
 
-        logger.info("Querying for customer records where first_name = 'Josh' :")
+        logger.info("Querying for customer records where $FIRST_NAME = 'Josh' :")
 
-        jdbcTemplate.query("SELECT id, first_name, last_name FROM customers WHERE first_name = ?", "Josh"){rs, row ->
+        jdbcTemplate.query("SELECT $ID, $FIRST_NAME, $LAST_NAME FROM $CUSTOMERS WHERE $FIRST_NAME = ?", "Josh"){ rs, row ->
             Customer(
-                rs.getLong("id"),
-                rs.getString("first_name"),
-                rs.getString("last_name")
+                rs.getLong(ID),
+                rs.getString(FIRST_NAME),
+                rs.getString(LAST_NAME)
             )
 
         }.forEach { logger.info(it.toString()) }
