@@ -3,10 +3,10 @@ package com.example.accessing_data_rest
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
+import org.springframework.context.annotation.Profile
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.query
 import org.springframework.stereotype.Component
-import java.util.Arrays
 
 private const val FIRST_NAME = "first_name"
 private const val LAST_NAME = "last_name"
@@ -14,12 +14,14 @@ private const val ID = "id"
 private const val CUSTOMERS = "customers"
 
 @Component
+@Profile("!postgres")
 class RestDataRunner(val jdbcTemplate: JdbcTemplate) : CommandLineRunner {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass);
 
 
 
     override fun run(vararg args: String?) {
+
 
         logger.info("Creating tables");
 
