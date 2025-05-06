@@ -15,7 +15,7 @@ private const val CUSTOMERS = "customers"
 
 @Component
 @Profile("!postgres")
-class RestDataRunner(val jdbcTemplate: JdbcTemplate) : CommandLineRunner {
+class H2Runner(val jdbcTemplate: JdbcTemplate) : CommandLineRunner {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass);
 
 
