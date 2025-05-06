@@ -1,0 +1,1 @@
+curl -X DELETE http://localhost:63431/people/681a06450a9e3352fecf012d

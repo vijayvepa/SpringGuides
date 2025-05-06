@@ -6,5 +6,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource
 
 @RepositoryRestResource(collectionResourceRel = "people", path = "people")
 interface PersonRepository : MongoRepository<Person, String> {
-    fun findByLastName(@Param("name") name: String);
+    fun findByLastName(@Param("name") name: String): List<Person>;
+    fun findByFirstName(@Param("name") name: String): List<Person>;
 }
