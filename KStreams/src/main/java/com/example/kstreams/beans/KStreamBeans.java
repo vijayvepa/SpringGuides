@@ -40,9 +40,9 @@ public class KStreamBeans {
   public static final int DEFAULT_KAFKA_STREAMS_PROGRESS_COMMIT_INTERVAL = 5000;
 
   /**
-   * Bean name that toteLotInfoTransformationStreamBuilder is qualified with.
+   * Bean name
    */
-  public static final String WORKLOAD_METRIC_TRANSFORMATION_STREAM_BUILDER = "workLoadMetricTransformationStreamBuilder";
+  public static final String STREAM_BUILDER = "transformationStreamBuilder";
 
   /**
    * {@link org.springframework.kafka.config.StreamsBuilderFactoryBean} constructed for
@@ -54,8 +54,8 @@ public class KStreamBeans {
    * @param meterRegistry Micrometer Meter Registry
    * @return bean instance
    */
-  @Bean(name = WORKLOAD_METRIC_TRANSFORMATION_STREAM_BUILDER)
-  public StreamsBuilderFactoryBean acsWorkLoadMetricTransformationStreamBuilder(
+  @Bean(name = STREAM_BUILDER)
+  public StreamsBuilderFactoryBean streamsBuilderFactory(
       final KafkaConfigProperties kafkaConfigProperties,
       final KafkaStreamsOverrideConfigProperties overrideConfigProperties,
       final KafkaProperties kafkaProperties,
