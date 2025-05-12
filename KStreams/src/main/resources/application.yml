@@ -1,0 +1,22 @@
+kafka:
+  state-dir: ${KAFKA_STATE_DIR:/tmp/kafka-streams}
+  schema-registry: localhost:9000
+  streams-application-id: some-service.topology.v1
+  consumer-auto-offset-reset: latest
+  ## Configures the shutownClientExceptionHandler customization. - Refer KafkaStreamsConfig.
+  enable-shutdown-client-exception-handler: true
+  kafka-retry-backoff-interval-ms: 20000
+
+management:
+  health:
+    mongo:
+      enabled: false
+  endpoint:
+    health:
+      show-components: always
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
