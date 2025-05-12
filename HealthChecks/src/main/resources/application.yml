@@ -1,0 +1,19 @@
+health-checks:
+  enabled: true
+  initial-delay-millis: 10000
+  period-millis: 15000
+  health-endpoint-list:
+    - service-name: "Mongo"
+      type: MONGO
+      enabled: true
+
+    - service-name: "Kafka"
+      type: KAFKA
+      enabled: true
+
+    - service-name: "Downstream HTTP"
+      type: HTTP
+      enabled: ${ENABLE_DOWNSTREAM_SERVICE:false}
+      host: ${DOWNSTREAM_SERVICE_HOST:httpbin}
+      port: ${DOWNSTREAM_SERVICE_PORT:8080}
+      path: /health
