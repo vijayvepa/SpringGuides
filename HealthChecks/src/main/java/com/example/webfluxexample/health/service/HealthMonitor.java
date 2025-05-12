@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.FluxSink;
 
@@ -29,7 +30,7 @@ public class HealthMonitor {
 
   public HealthMonitor(
       final HealthConfig healthConfig,
-      final HealthChecker topLevelHealthChecker) {
+      @Qualifier("top-level-checker") final HealthChecker topLevelHealthChecker) {
     this.healthConfig = healthConfig;
     this.topLevelHealthChecker = topLevelHealthChecker;
     this.executor = Executors.newScheduledThreadPool(1);
@@ -93,4 +94,16 @@ public class HealthMonitor {
         this.topLevelHealthChecker.isHealthy(endpoint));
   }
 
+  public void connect(final FluxSink<Health> sink) {
+    log.debug("Connecting health flux");
+    this.sinkRef.set(sink);
+  }
+
+  public boolean isEnabled() {
+    return this.healthConfig.isEnabled();
+  }
+
+  public Health getHealthSnapshot() {
+    return this.oldHealthReference.get();
+  }
 }
